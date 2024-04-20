@@ -1,11 +1,5 @@
 package android.tuananh.appbangiay.activity;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.os.Bundle;
 import android.os.Handler;
 import android.tuananh.appbangiay.R;
@@ -14,8 +8,13 @@ import android.tuananh.appbangiay.model.SanPhamMoi;
 import android.tuananh.appbangiay.retrofit.ApiBanHang;
 import android.tuananh.appbangiay.retrofit.RetrofitClient;
 import android.tuananh.appbangiay.utils.Utils;
-import android.view.View;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +35,6 @@ public class GiayNikeActivity extends AppCompatActivity {
     LinearLayoutManager linearLayoutManager;
     Handler handler = new Handler();
     boolean isLoading = false;
-
 
 
     @Override
@@ -62,8 +60,8 @@ public class GiayNikeActivity extends AppCompatActivity {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if(isLoading == false){
-                    if (linearLayoutManager.findFirstCompletelyVisibleItemPosition() == sanPhamMoiList.size()-1){
+                if (!isLoading) {
+                    if (linearLayoutManager.findFirstCompletelyVisibleItemPosition() == sanPhamMoiList.size() - 1) {
                         isLoading = true;
                         loadMore();
                     }
@@ -75,26 +73,20 @@ public class GiayNikeActivity extends AppCompatActivity {
     }
 
     private void loadMore() {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                //add null
-                sanPhamMoiList.add(null);
-                adapterNike.notifyItemInserted(sanPhamMoiList.size()-1);
-            }
+        handler.post(() -> {
+            //add null
+            sanPhamMoiList.add(null);
+            adapterNike.notifyItemInserted(sanPhamMoiList.size() - 1);
         });
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                //remover null
-                sanPhamMoiList.remove(sanPhamMoiList.size()-1);
-                adapterNike.notifyItemRemoved(sanPhamMoiList.size());
-                page = page+1;
-                getData(page);
-                adapterNike.notifyDataSetChanged();
-                isLoading = false;
+        handler.postDelayed(() -> {
+            //remover null
+            sanPhamMoiList.remove(sanPhamMoiList.size() - 1);
+            adapterNike.notifyItemRemoved(sanPhamMoiList.size());
+            page = page + 1;
+            getData(page);
+            adapterNike.notifyDataSetChanged();
+            isLoading = false;
 
-            }
         }, 2000);
     }
 
@@ -104,41 +96,34 @@ public class GiayNikeActivity extends AppCompatActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         sanPhamMoiModel -> {
-                            if (sanPhamMoiModel.isSuccess()){
+                            if (sanPhamMoiModel.isSuccess()) {
                                 if (adapterNike == null) {
                                     sanPhamMoiList = sanPhamMoiModel.getResult();
                                     adapterNike = new GiayNikeAdapter(getApplicationContext(), sanPhamMoiList);
                                     recyclerView.setAdapter(adapterNike);
-                                }else {
-                                    int vitri = sanPhamMoiList.size()-1;
+                                } else {
+                                    int vitri = sanPhamMoiList.size() - 1;
                                     int soluongadd = sanPhamMoiModel.getResult().size();
-                                    for (int i= 0; i<soluongadd; i++ ){
+                                    for (int i = 0; i < soluongadd; i++) {
                                         sanPhamMoiList.add(sanPhamMoiModel.getResult().get(i));
                                     }
                                     adapterNike.notifyItemRangeInserted(vitri, soluongadd);
                                 }
 
 
-                            }else {
+                            } else {
                                 Toast.makeText(getApplicationContext(), "Hết dữ liệu rồi!", Toast.LENGTH_LONG).show();
                                 isLoading = true;
                             }
                         },
-                        throwable -> {
-                            Toast.makeText(getApplicationContext(), "Không kết nối server", Toast.LENGTH_LONG).show();
-                        }
+                        throwable -> Toast.makeText(getApplicationContext(), "Không kết nối server", Toast.LENGTH_LONG).show()
                 ));
     }
 
     private void ActionToolbar() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
+        toolbar.setNavigationOnClickListener(view -> finish());
     }
 
     private void Anhxa() {

@@ -1,9 +1,9 @@
 package android.tuananh.appbangiay.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.tuananh.appbangiay.R;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class GiayAdidasActivity extends AppCompatActivity {
 

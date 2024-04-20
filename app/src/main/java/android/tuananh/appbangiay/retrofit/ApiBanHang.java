@@ -3,10 +3,10 @@ package android.tuananh.appbangiay.retrofit;
 import android.tuananh.appbangiay.model.DonHangModel;
 import android.tuananh.appbangiay.model.LoaiSpModel;
 import android.tuananh.appbangiay.model.SanPhamMoiModel;
+import android.tuananh.appbangiay.model.ThongKeModel;
 import android.tuananh.appbangiay.model.UserModel;
 
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Observer;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -20,13 +20,20 @@ public interface ApiBanHang {
     @GET("getspmoi.php")
     Observable<SanPhamMoiModel> getSpMoi();
 
+    @GET("thongke.php")
+    Observable<ThongKeModel> getThongKe();
+
+    @GET("thongkethang.php")
+    Observable<ThongKeModel> getThongKeThang();
+
     // POST DATA
     @POST("chitiet.php")
     @FormUrlEncoded
     Observable<SanPhamMoiModel> getSanPham(
-        @Field("page") int page,
-        @Field("loai") int loai
+            @Field("page") int page,
+            @Field("loai") int loai
     );
+
     @POST("dangki.php")
     @FormUrlEncoded
     Observable<UserModel> dangKi(
@@ -35,6 +42,7 @@ public interface ApiBanHang {
             @Field("username") String username,
             @Field("mobile") String mobile
     );
+
     @POST("dangnhap.php")
     @FormUrlEncoded
     Observable<UserModel> dangNhap(

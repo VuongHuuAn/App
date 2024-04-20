@@ -1,10 +1,5 @@
 package android.tuananh.appbangiay.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -14,9 +9,13 @@ import android.tuananh.appbangiay.model.SanPhamMoi;
 import android.tuananh.appbangiay.retrofit.ApiBanHang;
 import android.tuananh.appbangiay.retrofit.RetrofitClient;
 import android.tuananh.appbangiay.utils.Utils;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,11 +59,11 @@ public class SearchActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (charSequence.length() == 0){
+                if (charSequence.length() == 0) {
                     sanPhamMoiList.clear();
                     adapterNike = new GiayNikeAdapter(getApplicationContext(), sanPhamMoiList);
                     recyclerView.setAdapter(adapterNike);
-                }else {
+                } else {
                     getDataSearch(charSequence.toString());
                 }
 
@@ -85,31 +84,24 @@ public class SearchActivity extends AppCompatActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         sanPhamMoiModel -> {
-                            if (sanPhamMoiModel.isSuccess()){
+                            if (sanPhamMoiModel.isSuccess()) {
                                 sanPhamMoiList = sanPhamMoiModel.getResult();
                                 adapterNike = new GiayNikeAdapter(getApplicationContext(), sanPhamMoiList);
                                 recyclerView.setAdapter(adapterNike);
-                            }else {
+                            } else {
                                 Toast.makeText(getApplicationContext(), sanPhamMoiModel.getMessage(), Toast.LENGTH_SHORT).show();
                                 sanPhamMoiList.clear();
                                 adapterNike.notifyDataSetChanged();
                             }
                         },
-                        throwable -> {
-                            Toast.makeText(getApplicationContext(), throwable.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
+                        throwable -> Toast.makeText(getApplicationContext(), throwable.getMessage(), Toast.LENGTH_SHORT).show()
                 ));
     }
 
     private void ActionToolbar() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
+        toolbar.setNavigationOnClickListener(view -> finish());
 
     }
 

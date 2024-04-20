@@ -1,5 +1,26 @@
 package android.tuananh.appbangiay.activity;
 
+import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Bundle;
+import android.tuananh.appbangiay.R;
+import android.tuananh.appbangiay.adapter.LoaiSpAdapter;
+import android.tuananh.appbangiay.adapter.SanPhamMoiAdapter;
+import android.tuananh.appbangiay.model.LoaiSp;
+import android.tuananh.appbangiay.model.SanPhamMoi;
+import android.tuananh.appbangiay.retrofit.ApiBanHang;
+import android.tuananh.appbangiay.retrofit.RetrofitClient;
+import android.tuananh.appbangiay.utils.Utils;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.Toast;
+import android.widget.ViewFlipper;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
@@ -7,44 +28,15 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Context;
-import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkInfo;
-import android.os.Bundle;
-import android.tuananh.appbangiay.R;
-import android.tuananh.appbangiay.adapter.LoaiSpAdapter;
-import android.tuananh.appbangiay.adapter.SanPhamMoiAdapter;
-import android.tuananh.appbangiay.model.LoaiSp;
-import android.tuananh.appbangiay.model.LoaiSpModel;
-import android.tuananh.appbangiay.model.SanPhamMoi;
-import android.tuananh.appbangiay.model.SanPhamMoiModel;
-import android.tuananh.appbangiay.retrofit.ApiBanHang;
-import android.tuananh.appbangiay.retrofit.RetrofitClient;
-import android.tuananh.appbangiay.utils.Utils;
-import android.view.Gravity;
-import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.Toast;
-import android.widget.ViewFlipper;
-
 import com.bumptech.glide.Glide;
 import com.google.android.material.navigation.NavigationView;
 import com.nex3z.notificationbadge.NotificationBadge;
 
-import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.List;
 
 import io.paperdb.Paper;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
@@ -73,47 +65,48 @@ public class MainActivity extends AppCompatActivity {
 
         Anhxa();
         ActionBar();
-        if (isConnected(this)){
+        if (isConnected(this)) {
             ActionViewFlipper();
             getLoaiSanPham();
             getSpMoi();
             getEventClick();
-        }else {
+        } else {
             Toast.makeText(getApplicationContext(), "Không có internet, vui lòng kết nối", Toast.LENGTH_LONG).show();
         }
     }
 
     private void getEventClick() {
-        listViewManHinhChinh.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                switch (i){
-                    case 0:
-                        Intent trangchu = new Intent(getApplicationContext(), MainActivity.class);
-                        startActivity(trangchu);
-                        break;
-                    case 1:
-                        Intent giaynike = new Intent(getApplicationContext(), GiayNikeActivity.class);
-                        giaynike.putExtra("loai", 1);
-                        startActivity(giaynike);
-                        break;
-                    case 2:
-                        Intent giayadidas = new Intent(getApplicationContext(), GiayNikeActivity.class);
-                        giayadidas.putExtra("loai", 2);
-                        startActivity(giayadidas);
-                        break;
-                    case 5:
-                        Intent donhang = new Intent(getApplicationContext(), XemDonActivity.class);
-                        startActivity(donhang);
-                        break;
-                    case 6:
-                        // xoa key user
-                        Paper.book().delete("user");
-                        Intent dangnhap = new Intent(getApplicationContext(), DangNhapActivity.class);
-                        startActivity(dangnhap);
-                        finish();
-                        break;
-                }
+        listViewManHinhChinh.setOnItemClickListener((adapterView, view, i, l) -> {
+            switch (i) {
+                case 0:
+                    Intent trangchu = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(trangchu);
+                    break;
+                case 1:
+                    Intent giaynike = new Intent(getApplicationContext(), GiayNikeActivity.class);
+                    giaynike.putExtra("loai", 1);
+                    startActivity(giaynike);
+                    break;
+                case 2:
+                    Intent giayadidas = new Intent(getApplicationContext(), GiayNikeActivity.class);
+                    giayadidas.putExtra("loai", 2);
+                    startActivity(giayadidas);
+                    break;
+                case 3:
+                    Intent donhang = new Intent(getApplicationContext(), XemDonActivity.class);
+                    startActivity(donhang);
+                    break;
+                case 4:
+                    Intent thongke = new Intent(getApplicationContext(), ThongKeActivity.class);
+                    startActivity(thongke);
+                    break;
+                case 5:
+                    // xoa key user
+                    Paper.book().delete("user");
+                    Intent dangnhap = new Intent(getApplicationContext(), DangNhapActivity.class);
+                    startActivity(dangnhap);
+                    finish();
+                    break;
             }
         });
     }
@@ -124,15 +117,13 @@ public class MainActivity extends AppCompatActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         sanPhamMoiModel -> {
-                            if (sanPhamMoiModel.isSuccess()){
+                            if (sanPhamMoiModel.isSuccess()) {
                                 mangSpMoi = sanPhamMoiModel.getResult();
                                 spAdapter = new SanPhamMoiAdapter(getApplicationContext(), mangSpMoi);
                                 recyclerViewManHinhChinh.setAdapter(spAdapter);
                             }
                         },
-                        throwable -> {
-                            Toast.makeText(getApplicationContext(), "Không kết nối được với server"+throwable.getMessage(), Toast.LENGTH_LONG).show();
-                        }
+                        throwable -> Toast.makeText(getApplicationContext(), "Không kết nối được với server" + throwable.getMessage(), Toast.LENGTH_LONG).show()
                 ));
     }
 
@@ -142,21 +133,23 @@ public class MainActivity extends AppCompatActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         loaiSpModel -> {
-                            if (loaiSpModel.isSuccess()){
+                            if (loaiSpModel.isSuccess()) {
                                 mangloaisp = loaiSpModel.getResult();
-                                mangloaisp.add(new LoaiSp("Đăng xuất",""));
+                                mangloaisp.add(new LoaiSp("Thống kê", ""));
+                                mangloaisp.add(new LoaiSp("Đăng xuất", ""));
                                 loaiSpAdapter = new LoaiSpAdapter(getApplicationContext(), mangloaisp);
                                 listViewManHinhChinh.setAdapter(loaiSpAdapter);
                             }
-                        }
+                        },
+                        throwable -> Toast.makeText(getApplicationContext(), "Không kết nối được với server" + throwable.getMessage(), Toast.LENGTH_LONG).show()
                 ));
     }
 
     private void ActionViewFlipper() {
         List<String> mangquangcao = new ArrayList<>();
-        mangquangcao.add("https://media.licdn.com/dms/image/C5112AQEbrswDJBdyKg/article-inline_image-shrink_1000_1488/0/1520192850086?e=1708560000&v=beta&t=Mo-8KJXY5EwUQ_oqlIQnqV8Fy4FUoAqAUwiDUt4LQpE");
-        mangquangcao.add("https://media.licdn.com/dms/image/C5112AQFIVQBt4514ow/article-inline_image-shrink_1000_1488/0/1520156614976?e=1708560000&v=beta&t=GGmGZIZuq702H8hMxJPHYFupYCLQGKbt_ZH2GNfRlY8");
-        mangquangcao.add("https://media.licdn.com/dms/image/C5112AQEaaI6z3NxGLQ/article-inline_image-shrink_1000_1488/0/1520238935596?e=1708560000&v=beta&t=ASPNFnpCgf0B5Jr0IEqLCI8BsF9FVGP92dr3bnE1EGM");
+        mangquangcao.add("https://i.imgur.com/80UH26J.jpeg");
+        mangquangcao.add("https://i.imgur.com/80UH26J.jpeg");
+        mangquangcao.add("https://i.imgur.com/80UH26J.jpeg");
         for (int i = 0; i < mangquangcao.size(); i++) {
             ImageView imageView = new ImageView(getApplicationContext());
             Glide.with(getApplicationContext()).load(mangquangcao.get(i)).into(imageView);
@@ -176,12 +169,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setNavigationIcon(android.R.drawable.ic_menu_sort_by_size);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawerLayout.openDrawer(GravityCompat.START);
-            }
-        });
+        toolbar.setNavigationOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
     }
 
     private void Anhxa() {
@@ -189,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toobarmanhinhchinh);
         viewFlipper = findViewById(R.id.viewlipper);
         recyclerViewManHinhChinh = findViewById(R.id.recycleview);
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this,2);
+        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 2);
         recyclerViewManHinhChinh.setLayoutManager(layoutManager);
         recyclerViewManHinhChinh.setHasFixedSize(true);
         listViewManHinhChinh = findViewById(R.id.listviewmanhinhchinh);
@@ -200,29 +188,23 @@ public class MainActivity extends AppCompatActivity {
         //khoi tao list
         mangloaisp = new ArrayList<>();
         mangSpMoi = new ArrayList<>();
-        if (Utils.manggiohang == null){
+        if (Utils.manggiohang == null) {
             Utils.manggiohang = new ArrayList<>();
-        }else {
+        } else {
             int totalItem = 0;
-            for (int i=0; i<Utils.manggiohang.size(); i++){
-                totalItem = totalItem+ Utils.manggiohang.get(i).getSoluong();
+            for (int i = 0; i < Utils.manggiohang.size(); i++) {
+                totalItem = totalItem + Utils.manggiohang.get(i).getSoluong();
             }
             badge.setText(String.valueOf(totalItem));
         }
-        frameLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent giohang = new Intent(getApplicationContext(), GioHangActivity.class);
-                startActivity(giohang);
-            }
+        frameLayout.setOnClickListener(view -> {
+            Intent giohang = new Intent(getApplicationContext(), GioHangActivity.class);
+            startActivity(giohang);
         });
 
-        imgsearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), SearchActivity.class);
-                startActivity(intent);
-            }
+        imgsearch.setOnClickListener(view -> {
+            Intent intent = new Intent(getApplicationContext(), SearchActivity.class);
+            startActivity(intent);
         });
 
     }
@@ -231,8 +213,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         int totalItem = 0;
-        for (int i=0; i<Utils.manggiohang.size(); i++){
-            totalItem = totalItem+ Utils.manggiohang.get(i).getSoluong();
+        for (int i = 0; i < Utils.manggiohang.size(); i++) {
+            totalItem = totalItem + Utils.manggiohang.get(i).getSoluong();
         }
         badge.setText(String.valueOf(totalItem));
     }
@@ -241,9 +223,9 @@ public class MainActivity extends AppCompatActivity {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo wifi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         NetworkInfo mobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        if ((wifi != null && wifi.isConnected()) || (mobile != null && mobile.isConnected()) ){
+        if ((wifi != null && wifi.isConnected()) || (mobile != null && mobile.isConnected())) {
             return true;
-        }else {
+        } else {
             return false;
         }
     }

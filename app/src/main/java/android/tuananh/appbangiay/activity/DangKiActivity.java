@@ -1,8 +1,5 @@
 package android.tuananh.appbangiay.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatButton;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -10,12 +7,13 @@ import android.tuananh.appbangiay.R;
 import android.tuananh.appbangiay.retrofit.ApiBanHang;
 import android.tuananh.appbangiay.retrofit.RetrofitClient;
 import android.tuananh.appbangiay.utils.Utils;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
+
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
@@ -34,12 +32,7 @@ public class DangKiActivity extends AppCompatActivity {
     }
 
     private void initControll() {
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dangKi();
-            }
-        });
+        button.setOnClickListener(view -> dangKi());
     }
 
     private void dangKi() {
@@ -48,7 +41,7 @@ public class DangKiActivity extends AppCompatActivity {
         String str_repass = repass.getText().toString().trim();
         String str_mobile = mobile.getText().toString().trim();
         String str_user = username.getText().toString().trim();
-        if (TextUtils.isEmpty(str_emai)){
+        if (TextUtils.isEmpty(str_emai)) {
             Toast.makeText(getApplicationContext(), "Bạn chưa nhập Email", Toast.LENGTH_SHORT).show();
         } else if (TextUtils.isEmpty(str_pass)) {
             Toast.makeText(getApplicationContext(), "Bạn chưa nhập Pass", Toast.LENGTH_SHORT).show();
@@ -59,27 +52,26 @@ public class DangKiActivity extends AppCompatActivity {
         } else if (TextUtils.isEmpty(str_user)) {
             Toast.makeText(getApplicationContext(), "Bạn chưa nhập Username", Toast.LENGTH_SHORT).show();
         } else {
-            if (str_pass.equals(str_repass)){
+            if (str_pass.equals(str_repass)) {
                 //post data
-                compositeDisposable.add(apiBanHang.dangKi(str_emai,str_pass,str_user,str_mobile)
+                compositeDisposable.add(apiBanHang.dangKi(str_emai, str_pass, str_user, str_mobile)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
                                 userModel -> {
-                                    if (userModel.isSuccess()){
+                                    if (userModel.isSuccess()) {
                                         Utils.user_current.setEmail(str_emai);
                                         Utils.user_current.setPass(str_pass);
                                         Intent intent = new Intent(getApplicationContext(), DangNhapActivity.class);
                                         startActivity(intent);
                                         finish();
-                                    }else {
+                                    } else {
                                         Toast.makeText(getApplicationContext(), userModel.getMessage(), Toast.LENGTH_SHORT).show();
-                                    }                                },
-                                throwable -> {
-                                    Toast.makeText(getApplicationContext(), throwable.getMessage(), Toast.LENGTH_SHORT).show();
-                                }
+                                    }
+                                },
+                                throwable -> Toast.makeText(getApplicationContext(), throwable.getMessage(), Toast.LENGTH_SHORT).show()
                         ));
-            }else {
+            } else {
                 Toast.makeText(getApplicationContext(), "Pass chưa khớp", Toast.LENGTH_SHORT).show();
             }
         }

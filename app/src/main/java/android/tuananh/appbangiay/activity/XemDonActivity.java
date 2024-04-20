@@ -1,18 +1,16 @@
 package android.tuananh.appbangiay.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.os.Bundle;
 import android.tuananh.appbangiay.R;
 import android.tuananh.appbangiay.adapter.DonHangAdapter;
 import android.tuananh.appbangiay.retrofit.ApiBanHang;
 import android.tuananh.appbangiay.retrofit.RetrofitClient;
 import android.tuananh.appbangiay.utils.Utils;
-import android.view.View;
-import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
@@ -54,12 +52,7 @@ public class XemDonActivity extends AppCompatActivity {
     private void initToolbar() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
+        toolbar.setNavigationOnClickListener(view -> finish());
     }
 
     private void initView() {

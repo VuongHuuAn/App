@@ -1,21 +1,20 @@
 package android.tuananh.appbangiay.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.tuananh.appbangiay.R;
 import android.tuananh.appbangiay.model.GioHang;
 import android.tuananh.appbangiay.model.SanPhamMoi;
 import android.tuananh.appbangiay.utils.Utils;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.nex3z.notificationbadge.NotificationBadge;
@@ -42,27 +41,22 @@ public class ChiTietActivity extends AppCompatActivity {
     }
 
     private void initControl() {
-        btnthem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                themGioHang();
-            }
-        });
+        btnthem.setOnClickListener(view -> themGioHang());
     }
 
     private void themGioHang() {
-        if (Utils.manggiohang.size() > 0){
+        if (Utils.manggiohang.size() > 0) {
             boolean flag = false;
             int soluong = Integer.parseInt(spinner.getSelectedItem().toString());
-            for (int i = 0; i < Utils.manggiohang.size(); i++){
-                if (Utils.manggiohang.get(i).getIdsp() == sanPhamMoi.getId()){
+            for (int i = 0; i < Utils.manggiohang.size(); i++) {
+                if (Utils.manggiohang.get(i).getIdsp() == sanPhamMoi.getId()) {
                     Utils.manggiohang.get(i).setSoluong(soluong + Utils.manggiohang.get(i).getSoluong());
                     long gia = Long.parseLong(sanPhamMoi.getGiasp()) * Utils.manggiohang.get(i).getSoluong();
                     Utils.manggiohang.get(i).setGiasp(gia);
                     flag = true;
                 }
             }
-            if (flag == false){
+            if (flag == false) {
                 long gia = Long.parseLong(sanPhamMoi.getGiasp()) * soluong;
                 GioHang gioHang = new GioHang();
                 gioHang.setGiasp(gia);
@@ -73,7 +67,7 @@ public class ChiTietActivity extends AppCompatActivity {
                 Utils.manggiohang.add(gioHang);
             }
 
-        }else {
+        } else {
             int soluong = Integer.parseInt(spinner.getSelectedItem().toString());
             long gia = Long.parseLong(sanPhamMoi.getGiasp()) * soluong;
             GioHang gioHang = new GioHang();
@@ -85,21 +79,21 @@ public class ChiTietActivity extends AppCompatActivity {
             Utils.manggiohang.add(gioHang);
         }
         int totalItem = 0;
-        for (int i=0; i<Utils.manggiohang.size(); i++){
-            totalItem = totalItem+ Utils.manggiohang.get(i).getSoluong();
+        for (int i = 0; i < Utils.manggiohang.size(); i++) {
+            totalItem = totalItem + Utils.manggiohang.get(i).getSoluong();
         }
         badge.setText(String.valueOf(totalItem));
 
     }
 
     private void initData() {
-        sanPhamMoi = sanPhamMoi = (SanPhamMoi) getIntent().getSerializableExtra("chitiet");
+        sanPhamMoi = (SanPhamMoi) getIntent().getSerializableExtra("chitiet");
         tensp.setText(sanPhamMoi.getTensp());
         mota.setText(sanPhamMoi.getMota());
         Glide.with(getApplicationContext()).load(sanPhamMoi.getHinhanh()).into(imghinhanh);
         DecimalFormat decimalFormat = new DecimalFormat("###,###,###");
-        giasp.setText("Giá: "+decimalFormat.format(Double.parseDouble(sanPhamMoi.getGiasp()))+ "Đ");
-        Integer[] so = new Integer[]{1,2,3,4,5,6,7,8,9};
+        giasp.setText("Giá: " + decimalFormat.format(Double.parseDouble(sanPhamMoi.getGiasp())) + "Đ");
+        Integer[] so = new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9};
         ArrayAdapter<Integer> adapterspin = new ArrayAdapter<>(this, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, so);
         spinner.setAdapter(adapterspin);
 
@@ -116,19 +110,16 @@ public class ChiTietActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toobar);
         badge = findViewById(R.id.menu_sl);
         FrameLayout frameLayoutgiohang = findViewById(R.id.framegiohang);
-        frameLayoutgiohang.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent giohang = new Intent(getApplicationContext(), GioHangActivity.class);
-                startActivity(giohang);
+        frameLayoutgiohang.setOnClickListener(view -> {
+            Intent giohang = new Intent(getApplicationContext(), GioHangActivity.class);
+            startActivity(giohang);
 
-            }
         });
 
-        if (Utils.manggiohang != null){
+        if (Utils.manggiohang != null) {
             int totalItem = 0;
-            for (int i=0; i<Utils.manggiohang.size(); i++){
-                totalItem = totalItem+ Utils.manggiohang.get(i).getSoluong();
+            for (int i = 0; i < Utils.manggiohang.size(); i++) {
+                totalItem = totalItem + Utils.manggiohang.get(i).getSoluong();
             }
             badge.setText(String.valueOf(totalItem));
         }
@@ -138,21 +129,16 @@ public class ChiTietActivity extends AppCompatActivity {
     private void ActionToolbar() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
+        toolbar.setNavigationOnClickListener(view -> finish());
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (Utils.manggiohang != null){
+        if (Utils.manggiohang != null) {
             int totalItem = 0;
-            for (int i=0; i<Utils.manggiohang.size(); i++){
-                totalItem = totalItem+ Utils.manggiohang.get(i).getSoluong();
+            for (int i = 0; i < Utils.manggiohang.size(); i++) {
+                totalItem = totalItem + Utils.manggiohang.get(i).getSoluong();
             }
             badge.setText(String.valueOf(totalItem));
         }
